@@ -1,5 +1,5 @@
 # Use the official Node.js runtime as the base image
-FROM node:16-alpine AS base
+FROM node:18-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -21,6 +21,7 @@ COPY . .
 RUN npx prisma generate
 
 # Build the application (without static export)
+ENV DATABASE_URL="file:./dev.db"
 RUN npm run build
 
 # Production image, copy all the files and run next
