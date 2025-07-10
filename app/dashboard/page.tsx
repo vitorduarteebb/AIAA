@@ -279,7 +279,7 @@ export default function DashboardPage() {
               transition={{ duration: 0.5 }}
               className="h-96"
             >
-              <AIChat />
+              <AIChat open={false} onClose={() => {}} />
             </motion.div>
 
             {/* Leaderboard */}
