@@ -1,0 +1,134 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  points    Int      @default(0)
+  level     Int      @default(1)
+  isAdmin   Boolean  @default(false)
+  planId    String?
+  aiRequestsUsed Int @default(0)
+  aiRequestsLimit Int @default(10)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  plan      Plan?    @relation(fields: [planId], references: [id])
+  aiLogs    AILog[]
+}
+
+model Plan {
+  id                String   @id @default(cuid())
+  name              String   @unique
+  description       String
+  price             Float    @default(0)
+  aiRequestsLimit   Int      @default(10)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  users             User[]
+}
+
+model AIConfig {
+  id          String   @id @default(cuid())
+  apiKey      String
+  provider    String   @default("openai") // openai, anthropic, etc.
+  model       String   @default("gpt-3.5-turbo")
+  maxTokens   Int      @default(1000)
+  temperature Float    @default(0.7)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  coverImage  String?  // URL da imagem de capa
+  level       String?  // iniciante, intermediário, avançado
+  category    String?  // categoria opcional
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  modules     Module[]
+}
+
+model Module {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  level       String   @default("BASIC") // BASIC, INTERMEDIATE, ADVANCED
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  coverImage  String?  // imagem/ícone opcional
+  duration    String?  // duração estimada opcional
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  courseId    String?
+  course      Course?  @relation(fields: [courseId], references: [id])
+  lessons     Lesson[]
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  imageUrl    String?  // URL da imagem opcional
+  videoUrl    String?  // URL do vídeo opcional
+  codeExample String?  // código de exemplo opcional
+  order       Int      @default(0)
+  moduleId    String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  module      Module   @relation(fields: [moduleId], references: [id])
+  quizzes     Quiz[]
+} 
+
+model Quiz {
+  id            String   @id @default(cuid())
+  question      String
+  options       String   // JSON array de opções
+  correctAnswer Int
+  lessonId      String
+  order         Int      @default(0)
+  points        Int      @default(10) // Pontos por pergunta
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  lesson        Lesson   @relation(fields: [lessonId], references: [id])
+} 
+
+model AILog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  response  String
+  status    String   // success, error, limit
+  createdAt DateTime @default(now())
+} 
+
+model PageContent {
+  id        String   @id @default(cuid())
+  slug      String   @unique // ex: 'landing'
+  content   String   // JSON com o layout/conteúdo
+  updatedAt DateTime @updatedAt
+} 
