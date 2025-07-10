@@ -5,7 +5,6 @@ import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '@/components/providers/AuthProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { NotificationProvider } from '@/components/NotificationSystem'
-import AIChatWidget from '@/components/AIChat'
 import ChatButton from '@/components/ChatButton'
 
 const inter = Inter({ subsets: ['latin'] })
