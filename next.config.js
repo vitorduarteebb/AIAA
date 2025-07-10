@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  // output: 'standalone', // Removido temporariamente para deploy
   images: {
     domains: ['localhost', '31.97.250.28'],
   },
