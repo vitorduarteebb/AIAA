@@ -109,6 +109,14 @@ export class ReportGenerator {
 
   async generateQuizReport(): Promise<Buffer> {
     const quizzes = await prisma.quiz.findMany({
+      select: {
+        id: true,
+        question: true,
+        options: true,
+        correctAnswer: true,
+        points: true,
+        createdAt: true
+      },
       orderBy: { createdAt: 'desc' }
     })
 
@@ -126,13 +134,13 @@ export class ReportGenerator {
     const tableData = quizzes.map(quiz => [
       quiz.question,
       quiz.correctAnswer,
-      quiz.options.join(', '),
-      quiz.difficulty,
+      quiz.options, // options já é uma string JSON
+      quiz.points.toString(), // usando points como dificuldade
       new Date(quiz.createdAt).toLocaleDateString('pt-BR')
     ])
 
     autoTable(doc, {
-      head: [['Pergunta', 'Resposta Correta', 'Opções', 'Dificuldade', 'Criado em']],
+      head: [['Pergunta', 'Resposta Correta', 'Opções', 'Pontos', 'Criado em']],
       body: tableData,
       startY: 40,
       styles: {
