@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // output: 'standalone', // Removido temporariamente para deploy
+  experimental: {
+    // Desabilitar build estático para evitar problemas com Prisma
+    staticPageGenerationTimeout: 0,
+  },
   images: {
     domains: ['localhost', '31.97.250.28'],
   },
