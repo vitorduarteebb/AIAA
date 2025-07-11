@@ -5,11 +5,11 @@ const nextConfig = {
     serverComponentsExternalPackages: ['@prisma/client', 'prisma']
   },
   images: {
-    domains: ['aulaai.com.br', 'www.aulaai.com.br'],
+    domains: ['aiaaibr.com.br', 'www.aiaaibr.com.br'],
     unoptimized: true
   },
   env: {
-    NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'https://aulaai.com.br'
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'https://aiaaibr.com.br'
   },
   async headers() {
     return [
