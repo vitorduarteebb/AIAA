@@ -12,7 +12,7 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json* ./
-RUN npm ci --only=production
+RUN npm ci
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -25,6 +25,8 @@ RUN npx prisma generate
 
 # Build the application (without static export)
 ENV DATABASE_URL="file:./dev.db"
+# Create database and run migrations
+RUN npx prisma db push --accept-data-loss
 RUN npm run build
 
 # Production image, copy all the files and run next
