@@ -12,17 +12,18 @@ COPY prisma ./prisma/
 # Instalar dependências
 RUN npm ci --only=production
 
-# Gerar cliente Prisma
-RUN npx prisma generate
-
 # Copiar código da aplicação
 COPY . .
 
-# Build da aplicação
+# Build da aplicação (sem acessar banco)
 ENV NODE_ENV=production
-ENV DATABASE_URL="file:./prod.db"
+ENV DATABASE_URL="file:./dev.db"
 RUN npm run build
 
 EXPOSE 3000
 
-CMD ["npm", "start"] 
+# Script de inicialização que gera o Prisma e inicia a aplicação
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+ENTRYPOINT ["docker-entrypoint.sh"] 
