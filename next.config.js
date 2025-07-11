@@ -9,6 +9,8 @@ const nextConfig = {
     // Desabilitar build estático
     staticPageGenerationTimeout: 0,
   },
+  // Desabilitar build estático completamente
+  generateStaticParams: false,
 }
 
 module.exports = nextConfig 
