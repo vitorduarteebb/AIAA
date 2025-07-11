@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 echo "🚀 Iniciando AIA Learning Platform..."
 
@@ -7,10 +6,10 @@ echo "🚀 Iniciando AIA Learning Platform..."
 echo "📦 Gerando cliente Prisma..."
 npx prisma generate
 
-# Sincronizar banco se necessário
+# Sincronizar banco de dados
 echo "🗄️ Sincronizando banco de dados..."
-npx prisma db push --accept-data-loss || true
+npx prisma db push
 
-# Iniciar aplicação em modo desenvolvimento
+# Iniciar aplicação em modo produção
 echo "🌐 Iniciando aplicação..."
-exec npm run dev 
+npm start 
