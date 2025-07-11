@@ -5,7 +5,7 @@ import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '@/components/providers/AuthProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { NotificationProvider } from '@/components/NotificationSystem'
-import ChatButton from '@/components/ChatButton'
+import ChatWrapper from '@/components/ChatWrapper'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -72,7 +72,7 @@ export default function RootLayout({
                   },
                 }}
               />
-              <ChatButton />
+              <ChatWrapper />
             </NotificationProvider>
           </AuthProvider>
         </ThemeProvider>

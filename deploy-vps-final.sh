@@ -1,25 +1,25 @@
 #!/bin/bash
 
-# Script de Deploy para VPS Ubuntu 24.04
+# Script de Deploy Final para VPS Ubuntu 24.04
 # AIA Learning Platform
 
 set -e
 
-echo "🚀 Iniciando deploy da AIA Learning Platform..."
+echo "🚀 DEPLOY FINAL - AIA Learning Platform"
+echo "======================================="
 
 # Configurações
 VPS_IP="31.97.250.28"
 VPS_USER="root"
-PROJECT_NAME="aia-platform"
 DOMAIN="aia.31.97.250.28.nip.io"
 
 # Cores para output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+BLUE='\033[0;34m'
+NC='\033[0m'
 
-# Função para log colorido
 log() {
     echo -e "${GREEN}[$(date +'%Y-%m-%d %H:%M:%S')] $1${NC}"
 }
@@ -31,6 +31,10 @@ warn() {
 error() {
     echo -e "${RED}[$(date +'%Y-%m-%d %H:%M:%S')] ERROR: $1${NC}"
     exit 1
+}
+
+info() {
+    echo -e "${BLUE}[$(date +'%Y-%m-%d %H:%M:%S')] INFO: $1${NC}"
 }
 
 # Verificar se estamos no diretório correto
@@ -58,7 +62,6 @@ fi
 # 3. Deploy via SSH
 log "🌐 Conectando à VPS e fazendo deploy..."
 
-# Comandos para executar na VPS
 ssh $VPS_USER@$VPS_IP << 'ENDSSH'
 set -e
 
@@ -70,6 +73,8 @@ if ! command -v docker &> /dev/null; then
     curl -fsSL https://get.docker.com -o get-docker.sh
     sh get-docker.sh
     usermod -aG docker $USER
+    systemctl enable docker
+    systemctl start docker
 fi
 
 if ! command -v docker-compose &> /dev/null; then
@@ -89,7 +94,7 @@ docker system prune -f
 
 echo "📥 Baixando código atualizado..."
 rm -rf app
-git clone https://github.com/seu-usuario/aia-learning-platform.git temp-repo
+git clone https://github.com/vitorduarteebb/AIAA.git temp-repo
 cp -r temp-repo/* .
 rm -rf temp-repo
 
@@ -105,12 +110,22 @@ echo "🐳 Construindo e iniciando containers..."
 docker-compose up -d --build
 
 echo "⏳ Aguardando aplicação inicializar..."
-sleep 30
+sleep 45
 
 echo "🔍 Verificando status dos containers..."
 docker-compose ps
 
+echo "🏥 Testando health check..."
+if curl -f http://localhost:3000/api/health; then
+    echo "✅ Health check passou!"
+else
+    echo "❌ Health check falhou, verificando logs..."
+    docker-compose logs app
+fi
+
 echo "🌐 Configurando Nginx..."
+apt install -y nginx
+
 cat > /etc/nginx/sites-available/aia-platform << 'EOF'
 server {
     listen 80;
@@ -126,6 +141,12 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 86400;
+    }
+    
+    location /health {
+        proxy_pass http://localhost:3000/api/health;
+        access_log off;
     }
 }
 EOF
@@ -141,6 +162,7 @@ systemctl restart nginx
 
 echo "✅ Deploy concluído com sucesso!"
 echo "🌐 Acesse: https://aia.31.97.250.28.nip.io"
+echo "🔧 Admin: https://aia.31.97.250.28.nip.io/admin/login"
 echo "📊 Status: docker-compose ps"
 echo "📋 Logs: docker-compose logs -f"
 
@@ -149,6 +171,7 @@ ENDSSH
 if [ $? -eq 0 ]; then
     log "✅ Deploy concluído com sucesso!"
     log "🌐 Acesse: https://$DOMAIN"
+    log "🔧 Admin: https://$DOMAIN/admin/login"
     log "📊 Para verificar status: ssh $VPS_USER@$VPS_IP 'cd /opt/aia-platform && docker-compose ps'"
     log "📋 Para ver logs: ssh $VPS_USER@$VPS_IP 'cd /opt/aia-platform && docker-compose logs -f'"
 else

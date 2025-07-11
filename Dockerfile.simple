@@ -1,0 +1,32 @@
+FROM node:18-alpine
+
+# Instalar dependências do sistema
+RUN apk add --no-cache libc6-compat openssl openssl-dev
+
+WORKDIR /app
+
+# Copiar arquivos de dependências
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Instalar dependências
+RUN npm ci --only=production
+
+# Gerar cliente Prisma
+RUN npx prisma generate
+
+# Copiar código da aplicação
+COPY . .
+
+# Configurar variáveis de ambiente para build
+ENV DATABASE_URL="file:./dev.db"
+ENV NODE_ENV=production
+
+# Build da aplicação
+RUN npm run build
+
+# Expor porta
+EXPOSE 3000
+
+# Comando para iniciar
+CMD ["npm", "start"] 

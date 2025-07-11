@@ -2,30 +2,36 @@ version: '3.8'
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgresql://postgres:password@db:5432/aia_db
-      - NEXTAUTH_SECRET=your-secret-key-here
-      - NEXTAUTH_URL=http://localhost:3000
-    depends_on:
-      - db
+      - NODE_ENV=production
+      - DATABASE_URL=file:./prod.db
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:
-      - .:/app
-      - /app/node_modules
-    command: npm run dev
+      - ./prisma:/app/prisma
+      - ./public:/app/public
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-  db:
-    image: postgres:15-alpine
-    environment:
-      - POSTGRES_DB=aia_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
+  nginx:
+    image: nginx:alpine
     ports:
-      - "5432:5432"
+      - "80:80"
+      - "443:443"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data: 
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - app
+    restart: unless-stopped 

@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:./prod.db
+      - NEXTAUTH_SECRET=aia-secret-key-2024
+      - NEXTAUTH_URL=http://31.97.250.28
+      - OPENAI_API_KEY=sk-proj-1234567890
+    volumes:
+      - ./prisma:/app/prisma
+      - ./public:/app/public
+    restart: unless-stopped 
