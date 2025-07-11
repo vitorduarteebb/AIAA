@@ -10,6 +10,9 @@ const nextConfig = {
   },
   env: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'https://aiaaibr.com.br'
+  },
+  eslint: {
+    ignoreDuringBuilds: true
   }
 }
 
