@@ -18,6 +18,10 @@ COPY . .
 # Gerar cliente Prisma
 RUN npx prisma generate
 
+# Build da aplicação para produção
+ENV NODE_ENV=production
+RUN npm run build
+
 EXPOSE 3000
 
 # Script de inicialização que sincroniza o banco e inicia a aplicação
