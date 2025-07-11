@@ -4,15 +4,18 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
       - DATABASE_URL=file:./prod.db
+      - NEXTAUTH_SECRET=aia-secret-key-2024
+      - NEXTAUTH_URL=http://31.97.250.28
+      - OPENAI_API_KEY=sk-proj-1234567890
     volumes:
       - ./prisma:/app/prisma
-      - ./backups:/app/backups
+      - ./public:/app/public
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]

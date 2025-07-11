@@ -1,0 +1,28 @@
+FROM node:18-slim
+
+# Instalar dependências do sistema
+RUN apt-get update && apt-get install -y openssl
+
+WORKDIR /app
+
+# Copiar arquivos de dependências
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Instalar dependências
+RUN npm ci --only=production
+
+# Gerar cliente Prisma
+RUN npx prisma generate
+
+# Copiar código da aplicação
+COPY . .
+
+# Build da aplicação
+ENV NODE_ENV=production
+ENV DATABASE_URL="file:./prod.db"
+RUN npm run build
+
+EXPOSE 3000
+
+CMD ["npm", "start"] 
