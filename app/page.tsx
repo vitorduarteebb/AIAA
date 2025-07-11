@@ -1,7 +1,5 @@
-'use client'
-
-import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import { prisma } from '@/lib/prisma'
 
 interface Block {
   id: string
@@ -39,12 +37,14 @@ const features = [
 
 export default async function LandingPage() {
   // Buscar conteúdo salvo
-  const page = await prisma.pageContent.findUnique({ where: { slug: 'landing' } })
   let blocks: Block[] = []
-  if (page?.content) {
-    try {
+  try {
+    const page = await prisma.pageContent.findUnique({ where: { slug: 'landing' } })
+    if (page?.content) {
       blocks = JSON.parse(page.content)
-    } catch {}
+    }
+  } catch (error) {
+    console.error('Erro ao carregar conteúdo da página:', error)
   }
 
   return (

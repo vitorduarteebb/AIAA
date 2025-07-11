@@ -4,33 +4,42 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile
+    container_name: aia-learning-app
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=file:./prod.db
-      - NEXTAUTH_SECRET=aia-secret-key-2024
-      - NEXTAUTH_URL=http://31.97.250.28
-      - OPENAI_API_KEY=sk-proj-1234567890
+      - DATABASE_URL=file:./dev.db
+      - NEXTAUTH_URL=https://aulaai.com.br
+      - NEXTAUTH_SECRET=your-secret-key-here
     volumes:
       - ./prisma:/app/prisma
-      - ./public:/app/public
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - ./backups:/app/backups
+    networks:
+      - aia-network
 
+  # Nginx como proxy reverso (opcional - pode usar o Nginx do host)
   nginx:
     image: nginx:alpine
+    container_name: aia-nginx
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./ssl:/etc/nginx/ssl
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/lib/letsencrypt:/var/lib/letsencrypt:ro
     depends_on:
       - app
-    restart: unless-stopped 
+    networks:
+      - aia-network
+
+networks:
+  aia-network:
+    driver: bridge
+
+volumes:
+  app-data: 

@@ -1,16 +1,37 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  trailingSlash: false,
-  images: {
-    domains: ['localhost', '31.97.250.28'],
-  },
   experimental: {
-    // Desabilitar build estático
-    staticPageGenerationTimeout: 0,
+    serverComponentsExternalPackages: ['@prisma/client', 'prisma']
   },
-  // Desabilitar build estático completamente
-  generateStaticParams: false,
+  images: {
+    domains: ['aulaai.com.br', 'www.aulaai.com.br'],
+    unoptimized: true
+  },
+  env: {
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'https://aulaai.com.br'
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin'
+          }
+        ]
+      }
+    ]
+  }
 }
 
 module.exports = nextConfig 
