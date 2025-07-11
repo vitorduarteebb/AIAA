@@ -9,7 +9,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Instalar dependências
+# Instalar todas as dependências (incluindo dev para Tailwind)
 RUN npm ci
 
 # Copiar código da aplicação
