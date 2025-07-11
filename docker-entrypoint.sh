@@ -11,6 +11,6 @@ npx prisma generate
 echo "🗄️ Sincronizando banco de dados..."
 npx prisma db push --accept-data-loss || true
 
-# Iniciar aplicação
+# Iniciar aplicação em modo desenvolvimento
 echo "🌐 Iniciando aplicação..."
-exec npm start 
+exec npm run dev 
